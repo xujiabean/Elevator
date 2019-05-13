@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ElevatorsSystem.Model
 {
@@ -17,23 +18,43 @@ namespace ElevatorsSystem.Model
             _manager = manager;
 			Identifier = id;
 		}
-        public override void PlaceRequest(Request req)
+        public override void PlaceRequest(Request newreq)
 		{
-            _req = req;
+			if (_req == null || _req.Time.Equals(default(DateTime)))
+			{
+				_req = newreq;
+				WaitRequestToBeFinished();
+			}
+			else Console.WriteLine(string.Format("Duplicate Request. Cur: {0}, {1}, ({4}). New: {2}, {3}, ({5}).", _req.Direction, _req.Floor, newreq.Direction, newreq.Floor, _req.id, newreq.id));
 		}
-        protected override void Run()
+
+		private void WaitRequestToBeFinished()
+		{
+			_manager.AllocateRequest(_req);
+			var waitTask = Task.Run(() =>
+				{
+					while (!_req.IsDone) { }
+					Console.WriteLine(string.Format("Finish request {0}, {1}, {2} ({3})", _req.Floor, _req.Direction, _req.Time, _req.id));
+					ResetRequest();
+				});
+		}
+		protected override void Run()
         {
             //Console.WriteLine("Run FloorButton " + Identifier);
             while(true)
             {
-				if (_req == null || _req.Time.Equals(default(DateTime)))
-					continue;
-				else
-				{
-					Console.WriteLine(string.Format("New request {0}, {1}, {2}", _req.Time, _req.Floor, _req.Direction));
-					_manager.AllocateRequest(_req);
-					ResetRequest();
-				}
+				//if (_req == null || _req.Time.Equals(default(DateTime)))
+				//	continue;
+				//else if(_req.IsDone)
+				//{
+				//	Console.WriteLine(string.Format("Finish request {0}, {1}, {2}", _req.Time, _req.Floor, _req.Direction));
+				//	ResetRequest();
+				//}
+				//else
+				//{
+				//	Console.WriteLine(string.Format("New request {0}, {1}, {2}", _req.Time, _req.Floor, _req.Direction));
+				//	 _manager.AllocateRequest(_req);
+				//}
                 //Thread.Sleep(20000);
                 //Console.WriteLine($"Run FloorButton {Identifier} Resume");
             }

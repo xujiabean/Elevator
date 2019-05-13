@@ -14,6 +14,7 @@ namespace ElevatorsSystem
 		private Thread _thread;
 		private Random _rd;
 		private ElevatorsManager _manager;
+		private long _ct = 0;
 		public Simulation(ElevatorsManager manager, int floor)
 		{
 			_floor = floor;
@@ -41,10 +42,11 @@ namespace ElevatorsSystem
 					request.Direction = dir < 5 ? Direction.Down : Direction.Up;
 				}
 				request.Time = DateTime.Now;
+				request.id = _ct++;
 				_manager.AddRequest(request);
 				//Console.WriteLine(string.Format("Add request {0}, {1}, {2}", request.Time, request.Floor, request.Direction));
-				int min = _rd.Next(1, 100);
-				Thread.Sleep(min*100);
+				//int min = _rd.Next(1, 100);
+				Thread.Sleep(5000);
 			}
 		}
 	}

@@ -37,7 +37,7 @@ namespace ElevatorsSystem.Model
 			if(!CanProcessed(req))
 			{
 				_requests.Enqueue(req);
-				Console.WriteLine(string.Format("Waiting list: {0}, {1}, {2}", req.Time, req.Floor, req.Direction));
+				Console.WriteLine(string.Format("Waiting list: {0}, {1}, {2} ({3}).", req.Time, req.Floor, req.Direction, req.id));
 			}
 				
 		}
@@ -53,9 +53,11 @@ namespace ElevatorsSystem.Model
 					if (CanProcessed(topReq))
 					{
 						_requests.TryDequeue(out topReq);
-						Console.WriteLine(string.Format("Depart Waiting list: {0}, {1}, {2}", topReq.Time, topReq.Floor, topReq.Direction));
+						Console.WriteLine(string.Format("Depart Waiting list: {0}, {1}, {2} ({3}).", topReq.Time, topReq.Floor, topReq.Direction, topReq.id));
 					}
+					Thread.Sleep(1000);
 				}
+				Thread.Sleep(10000);
 			}
 		}
 		private bool CanProcessed(Request req)

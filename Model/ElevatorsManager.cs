@@ -43,9 +43,14 @@ namespace ElevatorsSystem.Model
             for (int i = 0; i < floors; i++)
             {
                 var floor = new FloorButton(_manager, i);
-                floor.Start();
+				floor.Direction = Direction.Up;
+				floor.Start();
                 _floorButtons.Add(floor);
-            }
+				floor = new FloorButton(_manager, i);
+				floor.Direction = Direction.Down;
+				floor.Start();
+				_floorButtons.Add(floor);
+			}
 		}
 
 		public int TopFloor => _floorButtons.Count;
@@ -58,10 +63,12 @@ namespace ElevatorsSystem.Model
 			if (idlers.Count() > 1)
 			{
 				int index = GetShortestDistanceIndex(floor, idlers);
+				Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", index, arg.id));
 				idlers[index].ProcessRequest(arg);
 			}
 			else if (idlers.Count() == 1)
 			{
+				Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", idlers[0].Identifier, arg.id));
 				idlers[0].ProcessRequest(arg);
 			}
 			else
@@ -73,6 +80,7 @@ namespace ElevatorsSystem.Model
 				if (idlers.Any())
 				{
 					int index = GetShortestDistanceIndex(floor, idlers);
+					Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", index, arg.id));
 					idlers[index].ProcessRequest(arg);
 				}
 				else
@@ -102,7 +110,7 @@ namespace ElevatorsSystem.Model
 
         public void AddRequest(Request request)
 		{
-			var floorBotton = _floorButtons.First(a => a.Identifier == request.Floor);
+			var floorBotton = _floorButtons.First(a => a.Identifier == request.Floor && a.Direction == request.Direction);
 			floorBotton.PlaceRequest(request);
 		}
         public void RemoveRequest(Request request) { }

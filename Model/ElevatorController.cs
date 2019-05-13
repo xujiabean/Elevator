@@ -9,8 +9,9 @@ namespace ElevatorsSystem.Model
 	public class ElevatorController
 	{
 		private ElevatorsManager _manager;
-		private Queue<Request> _requests;
+		private List<Request> _requests;
         private Thread _thread;
+		private static object _lock;
 		public bool IsOverWeight { get; private set; }
 		public Direction CurrentDirection { get; private set; }
 
@@ -20,9 +21,10 @@ namespace ElevatorsSystem.Model
 		public ElevatorController(ElevatorsManager manager)
 		{
 			_manager = manager;
-			_requests = new Queue<Request>();
+			_requests = new List<Request>();
             _thread = new Thread(Run);
 			Elev = new Elevator();
+			_lock = new object();
 		}
 
 		public ElevatorController(ElevatorsManager manager, int id) : this(manager)
@@ -42,20 +44,33 @@ namespace ElevatorsSystem.Model
 
 		internal void ProcessRequest(Request arg)
 		{
-			if(arg!=null)
+			if (arg != null)
 			{
-				var anyDup = _requests.Where(a => a.Floor == arg.Floor && a.Direction == arg.Direction);
-				if (anyDup != null && anyDup.Any()) return;
-				_requests.Enqueue(arg);
+				lock (_lock)
+				{
+					var anyDup = _requests.Where(a => a.Floor == arg.Floor && a.Direction == arg.Direction);
+					if (anyDup != null && anyDup.Any()) return;
+					_requests.Add(arg);
+				}
 			}
-			if (CurrentDirection == Direction.Up)
-				_requests.OrderBy(x => x.Floor);
-			else if (CurrentDirection == Direction.Down)
-				_requests.OrderByDescending(x => x.Floor);
-			else
+			//if (CurrentDirection == Direction.Up)
+			//	OrderQueue(_requests.OrderBy(x => x.Floor));
+			//else if (CurrentDirection == Direction.Down)
+			//	OrderQueue(_requests.OrderByDescending(x => x.Floor));
+			//else
+			//{
+			//	CurrentDirection = arg == null ? Direction.Up : arg.Direction;
+			//}
+		}
+
+		private void OrderQueue(IOrderedEnumerable<Request> list)
+		{
+			List<Request> tempQueue = new List<Request>();
+			foreach(var item in list)
 			{
-				CurrentDirection = arg == null ? Direction.Up : arg.Direction;
+				tempQueue.Add(item);
 			}
+			_requests = tempQueue;
 		}
         public void Start()
         {
@@ -66,15 +81,34 @@ namespace ElevatorsSystem.Model
             Console.WriteLine("Run ElevatorController " + Identifier);
             while (true)
 			{
-				if (_requests.Count() > 0)
+				if(_requests.Count == 0)
 				{
+					CurrentDirection = Direction.Idle;
+					Elev.CurrentFloor = 0;
+				}
+				else
+				{
+					lock (_lock)
+					{
+						var anyMatch = _requests.Where(a => a.Floor == Elev.CurrentFloor);
+						if (anyMatch.Any())
+						{
+							foreach (var item in anyMatch)
+							{
+								_requests.Remove(item);
+								item.IsDone = true;
+								//Console.WriteLine(string.Format("ElevatorController {0} finished Request {1}, {2}, {3} ({4}).", Identifier, req.Floor, req.Direction, req.Time, req.id));
+							}
+						}
+					}
+
 					if (Elev.CurrentFloor == _manager.TopFloor) CurrentDirection = Direction.Down;
 					else if (Elev.CurrentFloor == 1) CurrentDirection = Direction.Up;
-					ProcessRequest(null);
-					var req = _requests.Dequeue();
-					Console.WriteLine(string.Format("ElevatorController {0} finished Request {1}, {2}, {3} ", Identifier, req.Floor, req.Direction, req.Time));
+
+					if (CurrentDirection == Direction.Down) Elev.CurrentFloor -= 1;
+					else if (CurrentDirection == Direction.Up) Elev.CurrentFloor += 1;
 				}
-				Thread.Sleep(10000);
+				Thread.Sleep(1000);
                 //Console.WriteLine("Run ElevatorController " + Identifier + " Resume");
             }
         }
