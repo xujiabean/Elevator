@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 
 namespace ElevatorsSystem.Model
 {
+	public delegate void RequestCallBack();
+
 	public class FloorButton: Button
 	{
         private ElevatorsManager _manager;
         private Request _req = new Request();
         public Direction Direction;
 		public int Identifier { get; private set; }
+		 
 		public FloorButton(ElevatorsManager manager, int id)
         {
             _manager = manager;
@@ -22,22 +25,24 @@ namespace ElevatorsSystem.Model
 		{
 			if (_req == null || _req.Time.Equals(default(DateTime)))
 			{
+				newreq.CallBack = ResetRequest;
 				_req = newreq;
-				WaitRequestToBeFinished();
+				_manager.AllocateRequest(_req);
+				//WaitRequestToBeFinished();
 			}
-			else Console.WriteLine(string.Format("Duplicate Request. Cur: {0}, {1}, ({4}). New: {2}, {3}, ({5}).", _req.Direction, _req.Floor, newreq.Direction, newreq.Floor, _req.id, newreq.id));
+			else Console.WriteLine(string.Format("Duplicate Request. Cur: {0}, {1}, ({4}). New: {2}, {3}, ({5}).", _req.Direction, _req.Floor, newreq.Direction, newreq.Floor, _req.Id, newreq.Id));
 		}
 
-		private void WaitRequestToBeFinished()
-		{
-			_manager.AllocateRequest(_req);
-			var waitTask = Task.Run(() =>
-				{
-					while (!_req.IsDone) { }
-					Console.WriteLine(string.Format("Finish request {0}, {1}, {2} ({3})", _req.Floor, _req.Direction, _req.Time, _req.id));
-					ResetRequest();
-				});
-		}
+		//private void WaitRequestToBeFinished()
+		//{
+		//	_manager.AllocateRequest(_req);
+		//	var waitTask = Task.Run(() =>
+		//		{
+		//			while (!_req.IsDone) { }
+		//			Console.WriteLine(string.Format("Finish request {0}, {1}, {2} ({3})", _req.Floor, _req.Direction, _req.Time, _req.Id));
+		//			ResetRequest();
+		//		});
+		//}
 		protected override void Run()
         {
             //Console.WriteLine("Run FloorButton " + Identifier);
@@ -61,6 +66,8 @@ namespace ElevatorsSystem.Model
         }
 		private void ResetRequest()
 		{
+			Console.WriteLine(string.Format("Finish request {0}, {1}, {2} ({3})", _req.Floor, _req.Direction, _req.Time, _req.Id));
+			//_req.IsDone = true;
 			_req = new Request();
 		}
 	}

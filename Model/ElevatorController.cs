@@ -48,6 +48,7 @@ namespace ElevatorsSystem.Model
 			{
 				lock (_lock)
 				{
+					if (CurrentDirection == Direction.Idle) CurrentDirection = arg.Direction;
 					var anyDup = _requests.Where(a => a.Floor == arg.Floor && a.Direction == arg.Direction);
 					if (anyDup != null && anyDup.Any()) return;
 					_requests.Add(arg);
@@ -81,10 +82,12 @@ namespace ElevatorsSystem.Model
             Console.WriteLine("Run ElevatorController " + Identifier);
             while (true)
 			{
-				if(_requests.Count == 0)
+				Console.WriteLine("ElevatorController " + Identifier + ", "+Elev.CurrentFloor +", "+ CurrentDirection);
+				if (_requests.Count == 0)
 				{
 					CurrentDirection = Direction.Idle;
 					Elev.CurrentFloor = 0;
+					Thread.Sleep(10000);
 				}
 				else
 				{
@@ -93,17 +96,18 @@ namespace ElevatorsSystem.Model
 						var anyMatch = _requests.Where(a => a.Floor == Elev.CurrentFloor);
 						if (anyMatch.Any())
 						{
-							foreach (var item in anyMatch)
+							for(int i=0;i<anyMatch.Count();i++)
 							{
+								Request item = anyMatch.ElementAt(i);
 								_requests.Remove(item);
-								item.IsDone = true;
-								//Console.WriteLine(string.Format("ElevatorController {0} finished Request {1}, {2}, {3} ({4}).", Identifier, req.Floor, req.Direction, req.Time, req.id));
+								item.CallBack();
+								//Console.WriteLine(string.Format("ElevatorController {0} finished Request {1}, {2}, {3} ({4}).", Identifier, req.Floor, req.Direction, req.Time, req.Id));
 							}
 						}
 					}
 
 					if (Elev.CurrentFloor == _manager.TopFloor) CurrentDirection = Direction.Down;
-					else if (Elev.CurrentFloor == 1) CurrentDirection = Direction.Up;
+					else if (Elev.CurrentFloor == 0) CurrentDirection = Direction.Up;
 
 					if (CurrentDirection == Direction.Down) Elev.CurrentFloor -= 1;
 					else if (CurrentDirection == Direction.Up) Elev.CurrentFloor += 1;

@@ -18,7 +18,7 @@ namespace ElevatorsSystem.Model
 
 		public Elevator()
 		{
-			CurrentFloor = 1;
+			CurrentFloor = 0;
 		}
 	}
 }

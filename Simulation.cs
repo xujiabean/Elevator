@@ -42,11 +42,11 @@ namespace ElevatorsSystem
 					request.Direction = dir < 5 ? Direction.Down : Direction.Up;
 				}
 				request.Time = DateTime.Now;
-				request.id = _ct++;
+				request.Id = _ct++;
 				_manager.AddRequest(request);
 				//Console.WriteLine(string.Format("Add request {0}, {1}, {2}", request.Time, request.Floor, request.Direction));
 				//int min = _rd.Next(1, 100);
-				Thread.Sleep(5000);
+				Thread.Sleep(50000);
 			}
 		}
 	}

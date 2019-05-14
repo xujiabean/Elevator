@@ -37,9 +37,8 @@ namespace ElevatorsSystem.Model
 			if(!CanProcessed(req))
 			{
 				_requests.Enqueue(req);
-				Console.WriteLine(string.Format("Waiting list: {0}, {1}, {2} ({3}).", req.Time, req.Floor, req.Direction, req.id));
+				Console.WriteLine(string.Format("Waiting list: {0}, {1}, {2} ({3}).", req.Time, req.Floor, req.Direction, req.Id));
 			}
-				
 		}
 
 		private void ConsumeRequest()
@@ -53,7 +52,7 @@ namespace ElevatorsSystem.Model
 					if (CanProcessed(topReq))
 					{
 						_requests.TryDequeue(out topReq);
-						Console.WriteLine(string.Format("Depart Waiting list: {0}, {1}, {2} ({3}).", topReq.Time, topReq.Floor, topReq.Direction, topReq.id));
+						Console.WriteLine(string.Format("Depart Waiting list: {0}, {1}, {2} ({3}).", topReq.Time, topReq.Floor, topReq.Direction, topReq.Id));
 					}
 					Thread.Sleep(1000);
 				}

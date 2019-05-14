@@ -63,12 +63,12 @@ namespace ElevatorsSystem.Model
 			if (idlers.Count() > 1)
 			{
 				int index = GetShortestDistanceIndex(floor, idlers);
-				Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", index, arg.id));
+				Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", index, arg.Id));
 				idlers[index].ProcessRequest(arg);
 			}
 			else if (idlers.Count() == 1)
 			{
-				Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", idlers[0].Identifier, arg.id));
+				Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", idlers[0].Identifier, arg.Id));
 				idlers[0].ProcessRequest(arg);
 			}
 			else
@@ -80,7 +80,7 @@ namespace ElevatorsSystem.Model
 				if (idlers.Any())
 				{
 					int index = GetShortestDistanceIndex(floor, idlers);
-					Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", index, arg.id));
+					Console.WriteLine(string.Format("Assign elevator {0}, Request {1}", index, arg.Id));
 					idlers[index].ProcessRequest(arg);
 				}
 				else

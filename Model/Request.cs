@@ -11,7 +11,8 @@ namespace ElevatorsSystem.Model
 		public Direction Direction;
 		public int Floor;
 		public DateTime Time;
-		public bool IsDone;
-		public long id;
+		//public bool IsDone;
+		public long Id;
+		public RequestCallBack CallBack;
 	}
 }
